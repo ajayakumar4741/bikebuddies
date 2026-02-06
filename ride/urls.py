@@ -11,6 +11,10 @@ urlpatterns = [
     path('bikeimages/<int:pk>', views.BikeImageDetail.as_view(), name='bikeimage-detail'),
     path('occupied-dates/',views.OccupiedDateList.as_view(),name='occupieddate-list'),
     path('occupied-dates/<int:pk>',views.OccupiedDateDetail.as_view(),name='occupieddate-detail'),
+    path('users/',views.UserList.as_view(),name='user-list'),
+    path('users/<int:pk>',views.UserDetail.as_view(),name='user-detail'),
+    path('login/', views.Login.as_view(), name='login'),
+    path('register/',views.Register.as_view(),name='register')
 ] 
 
 urlpatterns = format_suffix_patterns(urlpatterns)
