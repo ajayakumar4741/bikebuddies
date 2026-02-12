@@ -87,7 +87,7 @@ class Register(generics.CreateAPIView):
     
     def perform_create(self, serializer):
         user = serializer.save()
-        token,created=Token.objects.create(user=user)
+        token = Token.objects.create(user=user)
         
         self.response_data = {
             'user':{
@@ -113,7 +113,7 @@ class Login(APIView):
         if user is None:
             raise AuthenticationFailed('Invalid email or password')
         
-        token= Token.objects.get_or_create(user=user)
+        token, created = Token.objects.get_or_create(user=user)
         
         return Response({
             'user': {
