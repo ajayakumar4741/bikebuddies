@@ -2,10 +2,19 @@ from .models import *
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
-class BikeSerializer(serializers.HyperlinkedModelSerializer):
+class OccupiedDateSerializer(serializers.HyperlinkedModelSerializer):
+    bike = serializers.HyperlinkedRelatedField(
+        view_name='bike-detail',
+        queryset=Bike.objects.all()
+    )
+    user = serializers.HyperlinkedRelatedField(
+        view_name='user-detail',
+        queryset=User.objects.all()
+    )
+    
     class Meta:
-        model = Bike
-        fields = ['url', 'id', 'name', 'type', 'pricePerRide', 'currency', 'maxOccupancy', 'description','images']
+        model = OccupiedDate
+        fields = ['url','id', 'bike', 'date', 'user']
         
 class BikeImageSerializer(serializers.ModelSerializer):
 
@@ -22,6 +31,15 @@ class BikeImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = BikeImage
         fields = ['id', 'image', 'caption','bike',]
+
+class BikeSerializer(serializers.HyperlinkedModelSerializer):
+    occupied_dates = OccupiedDateSerializer(many=True, read_only=True)
+    images = BikeImageSerializer(many=True, read_only=True)
+    class Meta:
+        model = Bike
+        fields = ['url', 'id', 'name', 'type', 'pricePerRide', 'currency', 'maxOccupancy', 'description','images','occupied_dates']
+        
+
 
 # class BikeImageSerializer(serializers.ModelSerializer):
 #     bike = serializers.HyperlinkedRelatedField(
@@ -40,15 +58,7 @@ class BikeImageSerializer(serializers.ModelSerializer):
 #         model = BikeImage
 #         fields = ['id', 'image', 'caption', 'bike']
 
-class OccupiedDateSerializer(serializers.HyperlinkedModelSerializer):
-    bike = serializers.HyperlinkedRelatedField(
-        view_name='bike-detail',
-        queryset=Bike.objects.all()
-    )
-    
-    class Meta:
-        model = OccupiedDate
-        fields = ['url','id', 'bike', 'date']
+
         
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
