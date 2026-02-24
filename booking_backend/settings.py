@@ -10,9 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
-
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -128,8 +130,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-STRIPE_PUBLISHABLE_KEY = 'pk_test_51T4HxXGpiSk0R6a5aamv390IGn9pJkYgZzC21qKj1zNoUahm316tcyS7ddxKilK5etiHU2jrCSilTqWm6DQxrBnS00qoJeW4D1'
-STRIPE_SECRET_KEY = 'sk_test_51T4HxXGpiSk0R6a5GRDvecFd1McVgH8jdq9DuPuT8hlwG6WI6MzTQDnwyiIlVc0vj6FhvJbjUiXhQqUb2HeobFdf00WvLOvdk4'
+STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
