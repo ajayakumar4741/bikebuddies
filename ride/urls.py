@@ -14,7 +14,9 @@ urlpatterns = [
     path('users/',views.UserList.as_view(),name='user-list'),
     path('users/<int:pk>/',views.UserDetail.as_view(),name='user-detail'),
     path('login/', views.Login.as_view(), name='login'),
-    path('register/',views.Register.as_view(),name='register')
+    path('register/',views.Register.as_view(),name='register'),
+    # path("",views.PaymentListView.as_view(),name="payment-list"),
+    path('create-payment-intent/', views.CreatePaymentIntentView.as_view(), name='create-payment-intent'),
 ] 
 
 urlpatterns = format_suffix_patterns(urlpatterns)

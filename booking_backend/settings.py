@@ -128,6 +128,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51T4HxXGpiSk0R6a5aamv390IGn9pJkYgZzC21qKj1zNoUahm316tcyS7ddxKilK5etiHU2jrCSilTqWm6DQxrBnS00qoJeW4D1'
+STRIPE_SECRET_KEY = 'sk_test_51T4HxXGpiSk0R6a5GRDvecFd1McVgH8jdq9DuPuT8hlwG6WI6MzTQDnwyiIlVc0vj6FhvJbjUiXhQqUb2HeobFdf00WvLOvdk4'
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',

@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from rest_framework import generics,permissions
+from rest_framework import generics,permissions,status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from django.contrib.auth import authenticate
 from rest_framework.exceptions import AuthenticationFailed,PermissionDenied
 from .serializers import *
@@ -11,8 +12,56 @@ from .models import *
 from rest_framework.reverse import reverse
 from rest_framework.authtoken.models import Token
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
+import stripe
+from django.conf import settings
 
-# Create your views here.
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+# class PaymentListView(ListAPIView):
+#     queryset = Payment.objects.all()
+#     serializer_class = PaymentSerializer
+
+class CreatePaymentIntentView(APIView):
+    def post(self, request):
+        amount = request.data.get('amount')
+        currency = request.data.get('currency')
+        email = request.data.get("user_email")
+        if not email:
+            return Response({'error': 'Invalid email'}, status=400)
+        if not amount or int(amount) <= 0:
+            return Response({'error': 'Invalid amount'}, status=400)
+        if not currency:
+            return Response({'error': 'Currency is required'}, status=400)
+        
+        supported_currencies = ['usd', 'eur', 'inr']
+        if currency.lower() not in supported_currencies:
+            return Response({'error': 'Unsupported currency'}, status=400)
+
+        try:
+            # Create the Stripe payment intent
+            intent = stripe.PaymentIntent.create(
+                amount=int(amount),  # Amount in cents
+                currency=currency,
+            )
+            
+            # Save to the database
+            payment_data = {
+                'amount': amount,
+                'currency': currency,
+                'stripe_payment_id': intent['id'],
+                'user_email':email
+            }
+            serializer = PaymentSerializer(data=payment_data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    'clientSecret': intent['client_secret'],
+                    'payment': serializer.data,
+                    
+                }, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except stripe.error.StripeError as e:
+            return Response({'error': str(e)}, status=400)
 
 @api_view(['GET'])
 def api_root(request, format=None):

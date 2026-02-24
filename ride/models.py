@@ -3,6 +3,13 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 # Create your models here.
 
+class Payment(models.Model):
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=10, default="usd")
+    stripe_payment_id = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    user_email = models.EmailField()
+
 class Bike(models.Model):
     RIDE_TYPE = [
         ('adventure','adventure'),

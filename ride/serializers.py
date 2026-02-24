@@ -2,6 +2,11 @@ from .models import *
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = '__all__'
+
 class OccupiedDateSerializer(serializers.HyperlinkedModelSerializer):
     bike = serializers.HyperlinkedRelatedField(
         view_name='bike-detail',
