@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework import generics,permissions,status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAdminUser
+from rest_framework.decorators import api_view,permission_classes
+from rest_framework.permissions import IsAdminUser,IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from django.contrib.auth import authenticate
@@ -173,3 +173,29 @@ class Login(APIView):
             },
             'token': token.key
         })
+        
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def cancel_booking(request, booking_id):
+    try:
+        booking = Booking.objects.get(id=booking_id, user=request.user)
+
+        if booking.status == "cancelled":
+            return Response({"message": "Booking already cancelled"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Attempt refund if payment exists
+        if booking.payment_intent_id:
+            try:
+                # Create a refund in Stripe
+                stripe.Refund.create(payment_intent=booking.payment_intent_id)
+            except stripe.error.StripeError as e:
+                return Response({"error": f"Refund failed: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update booking status
+        booking.status = "cancelled"
+        booking.save()
+
+        return Response({"message": "Booking cancelled and refund processed"}, status=status.HTTP_200_OK)
+
+    except Booking.DoesNotExist:
+        return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)

@@ -50,3 +50,12 @@ class OccupiedDate(models.Model):
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=100,default='')
+    
+class Booking(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    bike = models.ForeignKey(Bike, on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    status = models.CharField(max_length=20, default="active")  # active / cancelled
+    payment_intent_id = models.CharField(max_length=255, null=True, blank=True)  # Stripe PaymentIntent
+    created_at = models.DateTimeField(auto_now_add=True)

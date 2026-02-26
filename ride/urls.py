@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import *
 from rest_framework.urlpatterns import format_suffix_patterns
 
 
@@ -15,13 +16,10 @@ urlpatterns = [
     path('users/<int:pk>/',views.UserDetail.as_view(),name='user-detail'),
     path('login/', views.Login.as_view(), name='login'),
     path('register/',views.Register.as_view(),name='register'),
-    # path("",views.PaymentListView.as_view(),name="payment-list"),
+    path("bookings/<int:booking_id>/cancel/", cancel_booking, name="cancel-booking"),
+
     path('create-payment-intent/', views.CreatePaymentIntentView.as_view(), name='create-payment-intent'),
 ] 
 
 urlpatterns = format_suffix_patterns(urlpatterns)
 
-# from django.conf import settings
-# from django.conf.urls.static import static
-# if settings.DEBUG:  # Serve media files during development
-#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
