@@ -14,12 +14,13 @@ from rest_framework.authtoken.models import Token
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 import stripe
 from django.conf import settings
+import datetime
+
+# later we reference BookingSerializer explicitly if needed
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
-# class PaymentListView(ListAPIView):
-#     queryset = Payment.objects.all()
-#     serializer_class = PaymentSerializer
+
 
 class CreatePaymentIntentView(APIView):
     def post(self, request):
@@ -103,9 +104,49 @@ class OccupiedDateList(generics.ListCreateAPIView):
         return super().get_queryset()
 
 class OccupiedDateDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = BikeImage.objects.all()
+    queryset = OccupiedDate.objects.all()
     serializer_class = OccupiedDateSerializer
     permission_classes = [IsAdminOrReadOnly]
+    
+ 
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def cancel_range(request):
+    start_date = request.data.get("start_date")
+    end_date = request.data.get("end_date")
+
+    try:
+        start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
+        end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
+    except ValueError:
+        return Response({"error": "Invalid date format, use YYYY-MM-DD"}, status=400)
+
+    qs = OccupiedDate.objects.filter(
+        user=request.user,
+        date__gte=start_date,
+        date__lte=end_date
+    )
+    count = qs.count()
+    print(count)
+    qs.delete()
+    return Response({"message": f"Cancelled {count} occupied dates"}, status=200)
+
+   
+    
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def cancel_all(request):
+    qs = OccupiedDate.objects.filter(user=request.user)
+    count = qs.count()
+    qs.delete()
+    return Response({"message": f"Cancelled {count} occupied dates"}, status=200)
+
+
+
     
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
@@ -173,29 +214,5 @@ class Login(APIView):
             },
             'token': token.key
         })
-        
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def cancel_booking(request, booking_id):
-    try:
-        booking = Booking.objects.get(id=booking_id, user=request.user)
 
-        if booking.status == "cancelled":
-            return Response({"message": "Booking already cancelled"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Attempt refund if payment exists
-        if booking.payment_intent_id:
-            try:
-                # Create a refund in Stripe
-                stripe.Refund.create(payment_intent=booking.payment_intent_id)
-            except stripe.error.StripeError as e:
-                return Response({"error": f"Refund failed: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Update booking status
-        booking.status = "cancelled"
-        booking.save()
-
-        return Response({"message": "Booking cancelled and refund processed"}, status=status.HTTP_200_OK)
-
-    except Booking.DoesNotExist:
-        return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)

@@ -7,6 +7,13 @@ class PaymentSerializer(serializers.ModelSerializer):
         model = Payment
         fields = '__all__'
 
+
+# class BookingSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = Booking
+#         fields = ['url', 'id', 'user', 'bike', 'start_date', 'end_date',
+#                   'status', 'payment_intent_id', 'created_at']
+
 class OccupiedDateSerializer(serializers.HyperlinkedModelSerializer):
     bike = serializers.HyperlinkedRelatedField(
         view_name='bike-detail',
@@ -16,10 +23,11 @@ class OccupiedDateSerializer(serializers.HyperlinkedModelSerializer):
         view_name='user-detail',
         queryset=User.objects.all()
     )
+    booking = serializers.PrimaryKeyRelatedField(read_only=True)
     
     class Meta:
         model = OccupiedDate
-        fields = ['url','id', 'bike', 'date', 'user']
+        fields = ['url','id', 'bike', 'date', 'user', 'booking']
         
 class BikeImageSerializer(serializers.ModelSerializer):
 
@@ -27,11 +35,7 @@ class BikeImageSerializer(serializers.ModelSerializer):
         view_name='bike-detail',
         queryset=Bike.objects.all()
     )
-    # image = serializers.SerializerMethodField()
-
-    # def get_image(self, obj):
-    #     return obj.image.url  # Ensures the full URL is returned
-
+    
     
     class Meta:
         model = BikeImage
@@ -43,25 +47,6 @@ class BikeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Bike
         fields = ['url', 'id', 'name', 'type', 'pricePerRide', 'currency', 'maxOccupancy', 'description','images','occupied_dates']
-        
-
-
-# class BikeImageSerializer(serializers.ModelSerializer):
-#     bike = serializers.HyperlinkedRelatedField(
-#         view_name='bike-detail',
-#         queryset=Bike.objects.all()
-#     )
-#     image = serializers.SerializerMethodField()
-
-#     def get_image(self, obj):
-#         request = self.context.get('request')
-#         if obj.image and hasattr(obj.image, 'url'):
-#             return request.build_absolute_uri(obj.image.url)
-#         return None
-
-#     class Meta:
-#         model = BikeImage
-#         fields = ['id', 'image', 'caption', 'bike']
 
 
         

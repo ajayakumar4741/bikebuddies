@@ -16,8 +16,8 @@ urlpatterns = [
     path('users/<int:pk>/',views.UserDetail.as_view(),name='user-detail'),
     path('login/', views.Login.as_view(), name='login'),
     path('register/',views.Register.as_view(),name='register'),
-    path("bookings/<int:booking_id>/cancel/", cancel_booking, name="cancel-booking"),
-
+    path("occupied-dates/cancel-range/", views.cancel_range, name="cancel-range"),
+    path("occupied-dates/cancel-all/", views.cancel_all, name="cancel-all"),
     path('create-payment-intent/', views.CreatePaymentIntentView.as_view(), name='create-payment-intent'),
 ] 
 

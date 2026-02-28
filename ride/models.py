@@ -32,7 +32,7 @@ class Bike(models.Model):
     
 class BikeImage(models.Model):
     image = models.ImageField(upload_to='room_images/')
-    # image = CloudinaryField("image")
+    
     caption = models.CharField(max_length=255, blank=True, null=True)
     bike = models.ForeignKey(Bike, related_name='images', on_delete=models.CASCADE)
     
@@ -43,19 +43,10 @@ class OccupiedDate(models.Model):
     bike = models.ForeignKey(Bike, related_name='occupied_dates', on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='booked_dates')
     date = models.DateField()
-    
+   
     def __str__(self):
-        return f"{self.bike.name} occupied on {self.date}"
-    
+        return f"{self.bike.name} occupied on {self.date}"    
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=100,default='')
     
-class Booking(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    bike = models.ForeignKey(Bike, on_delete=models.CASCADE)
-    start_date = models.DateField()
-    end_date = models.DateField()
-    status = models.CharField(max_length=20, default="active")  # active / cancelled
-    payment_intent_id = models.CharField(max_length=255, null=True, blank=True)  # Stripe PaymentIntent
-    created_at = models.DateTimeField(auto_now_add=True)
