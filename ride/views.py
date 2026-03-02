@@ -128,10 +128,11 @@ def cancel_range(request):
         date__gte=start_date,
         date__lte=end_date
     )
-    count = qs.count()
-    print(count)
+    
+    print("Received:", start_date, end_date)
+    print("Matched:", list(qs.values_list("id", "date")))
     qs.delete()
-    return Response({"message": f"Cancelled {count} occupied dates"}, status=200)
+    return Response({"message": f"Cancelled {start_date} to {end_date} booking"}, status=200)
 
    
     
@@ -143,7 +144,7 @@ def cancel_all(request):
     qs = OccupiedDate.objects.filter(user=request.user)
     count = qs.count()
     qs.delete()
-    return Response({"message": f"Cancelled {count} occupied dates"}, status=200)
+    return Response({"message": f"Cancelled all bookings ({count} dates)"}, status=200)
 
 
 
